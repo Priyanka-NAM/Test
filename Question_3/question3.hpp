@@ -15,8 +15,11 @@ using namespace std;
       Try to explain why the performance might be good or bad. 
 */
 
+// Forward declaration of Matrix class.
 template<typename T> 
 class Matrix;
+
+// Matrix Multiplication Function.
 template <typename U,typename Z>
 auto operator* (const Matrix<U>& A, const Matrix<Z>& B);
 
@@ -32,7 +35,7 @@ class Matrix {
     
     template <typename U,typename Z>
     friend  auto operator* (const Matrix<U>& A, const Matrix<Z>& B);
-    T operator() (int i,int j);
+    T& operator() (int i,int j);
     void printVector();
     pair<int,int> getSize();
 };
@@ -57,7 +60,6 @@ Matrix<T>:: Matrix(const vector<vector<T>>& V)
   this->M=V.size();
   this->N=V[0].size();
   this->valVector=V;
-
 }
 
 template <typename T, typename Z>
@@ -93,56 +95,16 @@ void Matrix<T>::printVector()
 }
 
 template <class T>
-T Matrix<T>::operator() (int i,int j)
+T& Matrix<T>::operator() (int i,int j)
 {
-    if(i< valVector.size() && j< valVector[0].size())
+    if(i >=0 && i< valVector.size() && j>=0 && j< valVector[0].size())
         return this->valVector[i][j];
     else
-      throw std::invalid_argument("i & j not accessable");
+      throw std::invalid_argument("i,j is not a valid matrix index");
 }
 
 template <class T>
 pair<int,int> Matrix<T>::getSize()
 {
     return {this->M,this->N};
-}
-
-int main()
-{
-  try
-  {
-    // Matrix<int> a({{1,2},{2,3}});
-    // Matrix<int> b({{3,2},{2,2}});
-    // Matrix<int> c = a * b;
-    // c.printVector();
-    // cout<<"Value of Operator overload : "<<a(0,1)<<endl;
-    // cout<<"Get Size of Matrix : "<<c.getSize().first<<"   "<<c.getSize().second<<endl;
-    // Matrix<double> d({{1.1,0.2},{0.0,1.2}});
-    // Matrix<int> e({{0,2},{2,2}});
-    // auto f = d * e;
-    // f.printVector();
-    vector<vector<int>> vec1(1000,vector<int>(1000,0));
-    vector<vector<int>> vec2(1000,vector<int>(1000,0));
-    srand(time(0));
-    int min=0;
-    int max=1000;
-    for(int i=0;i<1000;i++)
-    {
-      for(int j=0;j<1000;j++)
-      {
-          vec1[i][j]= min + (rand() % (max - min + 1));
-          vec2[i][j]= min + (rand() % (max - min + 1));
-      }
-    }
-    Matrix<int> testMatrix1(vec1);
-    Matrix<int> testMatrix2(vec2);
-    Matrix<int> resultMatrix = testMatrix1 * testMatrix2;
-    resultMatrix.printVector();
-  }
-  catch (std::invalid_argument& e)
-  {
-      cerr << e.what() << endl;
-      return -1;
-  }
-  return 0;
 }
