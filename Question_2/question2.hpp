@@ -20,52 +20,49 @@ using namespace std;
 template <class T>
 class Polynomial 
 {
-    int siz;
-    vector<T> coeffi;
+    unsigned size;
+    vector<T> coefficients;
     public:
         Polynomial(){}
-        Polynomial(int siz);
+        Polynomial(unsigned size);
         Polynomial(const Polynomial& poly);
         Polynomial(vector<T>& coefficient);
-        int getSize()
-        {
-            return siz;
-        }
-        T operator[] (int index);
+        unsigned getSize();
+        T operator[] (unsigned index);
 };
 
-// Constructor takes vector of coefficients 
+// Constructor takes vector of coefficients
 template <class T>
-Polynomial<T>::Polynomial(vector<T>& coefficient)
-{
-    this->coeffi=coefficient;
-    this->siz=coefficient.size();
-}
+Polynomial<T>::Polynomial(vector<T> &coefficients) : 
+    size(coefficients.size()), coefficients(coefficients) {}
 
 // Constructor takes size as argument 
 template <class T>
-Polynomial<T>::Polynomial(int siz)
-{
-    this->siz=siz;
-    coeffi.resize(siz);
+Polynomial<T>::Polynomial(unsigned size): size(size) {
+    coefficients.resize(size);
 }
 
 //Operator [] overloading to access the elements of the coefficients based on index.
 template <class T>
-T Polynomial<T>::operator[] (int index)
-{
-    if(index>=this->siz)
+T Polynomial<T>::operator[] (unsigned index) {
+    if(index>=this->size)
         throw std::invalid_argument("Index out of range");
-    return this->coeffi[index];
+    return this->coefficients[index];
 }
 
 //Copy Constructor
 template <class T>
-Polynomial<T>::Polynomial(const Polynomial& poly)
-{
-    this->siz=poly.siz;
-    this->coeffi=poly.coeffi;
+Polynomial<T>::Polynomial(const Polynomial& poly) {
+    this->size=poly.size;
+    this->coefficients=poly.coefficients;
 }
+
+// Returns the total number of coefficients.
+template <class T>
+unsigned Polynomial<T>::getSize() {
+            return size;
+}
+
 
 // Functor without Horner algorithm
 template <class T>
@@ -86,11 +83,11 @@ class EvalPolynomialNonHorner
         {
             if(polyfun.getSize()==0)
                 throw std::invalid_argument("polyfun size is 0"); 
-            auto result=polyfun[0];
+            decltype(polyfun[0]*x) result = polyfun[0];
             for(int i=1;i<polyfun.getSize();i++)
             {
-                U tmp=1;
-                for(int j=0;j<i;j++)
+                U tmp=x;
+                for(int j=1;j<i;j++)
                     tmp=tmp*x;
                 result=result+polyfun[i]*tmp;
             }
@@ -117,7 +114,7 @@ class EvalPolynomialHorner
         {
             if(polyfun.getSize()==0)
                 throw std::invalid_argument("polyfun size is 0"); 
-            auto result=polyfun[polyfun.getSize()-1];
+            decltype(polyfun[0]*x) result = polyfun[polyfun.getSize()-1];
             for(int i=polyfun.getSize()-2;i>=0;i--)
             {
                 result = result*x + polyfun[i];
@@ -127,70 +124,3 @@ class EvalPolynomialHorner
 
 };
 
-template <class T>
-class ComplexNumber
-{
-public:
-    ComplexNumber();
-    ComplexNumber(T real , T imaginary);
-    template<typename U>
-    ComplexNumber<T> operator *(const U other) const
-    {
-        ComplexNumber<T> temp;
-        temp.realnumber = realnumber * other;
-        temp.imaginarynumber = imaginarynumber * other;
-        return temp;
-    }
-    
-    ComplexNumber<T> operator +(const ComplexNumber<T>& other) 
-    {
-        ComplexNumber<T> temp;
-        temp.realnumber = realnumber + other.realnumber;
-        temp.imaginarynumber = imaginarynumber + other.imaginarynumber;
-        return temp;
-    }
-    void printComplexNumber()
-    {
-        cout<<realnumber;
-        cout<<"+";
-        cout<<imaginarynumber;
-        cout<<"i";
-    }
-private:
-    T realnumber;
-    T imaginarynumber;
-};
-
-template<class T>
-ComplexNumber<T>::ComplexNumber()
-{
-    realnumber = 0.0;
-    imaginarynumber = 0.0;
-}
-
-template<class T>
-ComplexNumber<T>::ComplexNumber(const T real,const T imaginary)
-{
-    realnumber = real;
-    imaginarynumber = imaginary;
-}
-
-int main()
-{
-    vector<int> v={1,2,5};
-    Polynomial<int> polobj(v);
-    EvalPolynomialNonHorner<int> obj1(polobj);
-    EvalPolynomialHorner<int> obj2(polobj);
-    cout<<obj1(2)<<endl;
-    cout<<obj2(2)<<endl;
-    cout<<"Complied Successfully"<<endl;
-    ComplexNumber<int> cn1(1,2);
-    ComplexNumber<int> cn2(1,2);
-    vector<ComplexNumber<int>> vec={cn1,cn2};
-    Polynomial<ComplexNumber<int>> polobjvec(vec);
-    EvalPolynomialHorner<ComplexNumber<int>> newobj1(polobjvec);
-    auto result=newobj1(2.2);
-    result.printComplexNumber();
-    cout<<"Ended Successfully"<<endl;
-    return 0;
-}
